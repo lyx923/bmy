@@ -283,7 +283,7 @@
       <div class="legend-item"><i style="background:#FF9E2C"></i>25 个以上</div>
       <div class="legend-item overseas-item"><i style="background:#FFD966;box-shadow:0 0 6px rgba(255,196,46,.8)"></i>海外应援</div>
     </div>
-    <div class="hint">滚轮缩放 · 拖拽平移 · 放大后显示省份名称</div>
+    <div class="hint">滚轮缩放 · 拖拽平移 · 点中省份后才聚焦</div>
   </main>
 </div>
 
@@ -296,7 +296,7 @@
 
 <script>
 /* =========================================================
-   ①  国内数据：名称@省份城市@时间
+   ①  国内数据
    ========================================================= */
 const MALLS = [
   /* 浙江 */
@@ -556,6 +556,9 @@ const IS_MOBILE = () => window.innerWidth <= 768;
 const INIT_ZOOM = () => IS_MOBILE() ? 0.95 : 1.15;
 const LABEL_THRESHOLD = () => IS_MOBILE() ? 2.0 : 1.1;
 
+/* ★ 点位尺寸（比之前更大，更容易点击） */
+const POINT_SIZE = () => IS_MOBILE() ? 11 : 13;
+
 let currentZoom = INIT_ZOOM();
 let lastLabelState = null;
 let zoomDebounce;
@@ -688,7 +691,8 @@ function initChart(){
       {
         id: 'points', type: 'scatter', coordinateSystem: 'geo', geoIndex: 0, zlevel: 2,
         symbol: 'circle',
-        symbolSize: IS_MOBILE() ? 6 : 8,
+        /* ★ 增大点位尺寸，让点击更容易命中 */
+        symbolSize: POINT_SIZE(),
         itemStyle: {
           color: '#7FD4E0',
           borderColor: '#E5F4F7',
@@ -697,7 +701,7 @@ function initChart(){
           shadowColor: 'rgba(127,212,224,.95)'
         },
         emphasis: {
-          scale: 2,
+          scale: 1.8,
           itemStyle: {
             color: '#FFC42E',
             borderColor: '#FFE9A8',
@@ -710,7 +714,7 @@ function initChart(){
       {
         id: 'focus', type: 'effectScatter', coordinateSystem: 'geo', geoIndex: 0, zlevel: 3,
         rippleEffect: { brushType: 'stroke', scale: 6, period: 2 },
-        symbolSize: IS_MOBILE() ? 14 : 16,
+        symbolSize: IS_MOBILE() ? 16 : 20,
         itemStyle: {
           color: '#FFC42E',
           borderColor: '#FFE9A8',
@@ -728,13 +732,25 @@ function initChart(){
     zoomDebounce = setTimeout(updateZoomState, 80);
   });
 
+  /* ★ 关键：点击逻辑
+     - 点击具体点位 → 聚焦该点位
+     - 点击省份（有数据）→ 如果没聚焦过这个省份，则聚焦；如果已经在看这个省份，不缩小（忽略）
+     - 点击空白 / 无数据区域 → 完全忽略
+     缩小地图只能通过「返回全国视图」按钮
+  */
   chart.on('click', function(params){
     if (params.componentType === 'geo'){
       const full = matchProvince(params.name);
       if (full && provinceStats[full]){
-        if (activeProvince === full) resetView(); else focusProvince(full);
-      } else { resetView(); }
-    } else if (params.componentType === 'series' && params.data && params.data.raw){
+        /* 只在「切换到其他省份」时聚焦；已经在该省份时不缩小 */
+        if (activeProvince !== full){
+          focusProvince(full);
+        }
+      }
+      /* 点击空白 / 无数据区域：什么也不做，保持视图 */
+      return;
+    }
+    if (params.componentType === 'series' && params.data && params.data.raw){
       const p = params.data.raw;
       focusPoint(p);
       const el = document.querySelector('.item[data-id="' + p.id + '"]');
@@ -903,6 +919,7 @@ listEl.addEventListener('click', function(e){
       renderList();
       return;
     }
+    /* 侧边栏点击省份标题：仍然可以切换聚焦；再次点击同一个省份则返回全国 */
     if (activeProvince === prov) resetView(); else focusProvince(prov);
     closeMobileMenu();
   }
