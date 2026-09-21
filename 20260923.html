@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>白鹿0923生日应援 · 全国大屏投放总览</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;overflow:hidden;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(1200px 700px at 82% -10%, rgba(255,196,46,.14), transparent 60%),
+      radial-gradient(900px 700px at 0% 110%, rgba(127,212,224,.16), transparent 60%),
+      linear-gradient(160deg,#071A26 0%,#0B2A3A 45%,#0E3A4A 100%);
+    color:#E5F4F7;
+  }
+  #app{display:flex;height:100vh;height:100dvh;}
+
+  aside{
+    width:380px;flex:0 0 380px;height:100%;display:flex;flex-direction:column;
+    background:linear-gradient(180deg,rgba(10,32,48,.92),rgba(8,24,36,.88));
+    border-right:1px solid rgba(127,212,224,.18);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    box-shadow:4px 0 30px rgba(0,0,0,.4);
+    z-index:100;position:relative;
+  }
+  aside::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,#7FD4E0 30%,#FFC42E 70%,transparent);
+    opacity:.85;
+  }
+  .side-head{padding:20px 20px 14px;border-bottom:1px solid rgba(127,212,224,.12);}
+  .brand-tag{
+    display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;
+    background:rgba(255,196,46,.14);border:1px solid rgba(255,196,46,.35);
+    color:#FFD966;font-weight:700;letter-spacing:1.5px;margin-bottom:10px;
+  }
+  .side-head h1{
+    margin:0;font-size:19px;letter-spacing:1.2px;font-weight:800;
+    background:linear-gradient(92deg,#7FD4E0 0%,#FFE9A8 55%,#FFC42E 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .side-head .sub{margin:7px 0 16px;font-size:12px;color:#7FA8BC;}
+  .stats{display:flex;gap:10px;margin-bottom:14px;}
+  .stat{
+    flex:1;background:linear-gradient(180deg,rgba(127,212,224,.10),rgba(127,212,224,.03));
+    border:1px solid rgba(127,212,224,.22);border-radius:12px;padding:9px 10px;text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .stat::after{
+    content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,#7FD4E0,transparent);opacity:.6;
+  }
+  .stat b{display:block;font-size:22px;line-height:1.15;font-weight:800;
+    background:linear-gradient(180deg,#FFE9A8,#FFC42E);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .stat span{font-size:11px;color:#7FA8BC;}
+  .search-wrap input{
+    width:100%;padding:10px 13px;border-radius:10px;font-size:13px;
+    background:rgba(6,20,30,.75);border:1px solid rgba(127,212,224,.24);
+    color:#E5F4F7;outline:none;transition:.2s;
+  }
+  .search-wrap input:focus{border-color:#7FD4E0;box-shadow:0 0 0 3px rgba(127,212,224,.16);}
+  .search-wrap input::placeholder{color:#5E7E90;}
+
+  .list{flex:1;overflow-y:auto;padding:10px 12px 16px;-webkit-overflow-scrolling:touch;}
+  .list::-webkit-scrollbar{width:6px;}
+  .list::-webkit-scrollbar-thumb{background:rgba(127,212,224,.28);border-radius:3px;}
+  .list::-webkit-scrollbar-track{background:transparent;}
+
+  .pgroup{margin-bottom:7px;border-radius:11px;overflow:hidden;transition:.2s;
+    border:1px solid transparent;}
+  .pgroup.active{
+    background:linear-gradient(180deg,rgba(127,212,224,.12),rgba(127,212,224,.04));
+    border-color:rgba(127,212,224,.28);
+  }
+  .pgroup.overseas{
+    border-color:rgba(255,196,46,.25);
+    background:linear-gradient(180deg,rgba(255,196,46,.06),rgba(255,196,46,.02));
+    margin-bottom:14px;
+  }
+  .pgroup.overseas.active{
+    background:linear-gradient(180deg,rgba(255,196,46,.14),rgba(255,196,46,.05));
+    border-color:rgba(255,196,46,.5);
+  }
+  .pgroup.overseas .phead{color:#FFD966;}
+  .pgroup.overseas .phead:hover{background:rgba(255,196,46,.14);color:#FFE9A8;}
+  .pgroup.overseas .pcount{
+    background:linear-gradient(180deg,rgba(255,196,46,.32),rgba(255,196,46,.15));
+    color:#FFE9A8;border-color:rgba(255,196,46,.6);
+  }
+  .pgroup.overseas .item.active{
+    background:linear-gradient(90deg,rgba(255,196,46,.22),rgba(255,196,46,.06));
+    color:#FFE9A8;
+  }
+  .pgroup.overseas .item .dot{
+    background:#FFC42E;box-shadow:0 0 8px rgba(255,196,46,.9);
+  }
+  .phead{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 12px;cursor:pointer;border-radius:10px;
+    font-size:13px;font-weight:700;color:#B8D6E2;transition:.18s;
+  }
+  .phead:hover{background:rgba(127,212,224,.12);color:#E5F4F7;}
+  .pgroup.active .phead{color:#7FD4E0;}
+  .pname{display:flex;align-items:center;gap:7px;}
+  .pname .globe{font-size:14px;}
+  .pcount{
+    min-width:26px;text-align:center;font-size:11px;font-weight:800;
+    padding:3px 8px;border-radius:20px;
+    background:linear-gradient(180deg,rgba(255,196,46,.22),rgba(255,196,46,.10));
+    color:#FFD966;border:1px solid rgba(255,196,46,.42);
+  }
+  .plist{display:none;padding:2px 0 8px;}
+  .pgroup.active .plist, .pgroup:hover .plist{display:block;}
+
+  .item{
+    display:flex;align-items:flex-start;gap:9px;padding:8px 12px 8px 20px;
+    margin:1px 6px;border-radius:8px;font-size:12px;color:#8FB5C4;
+    cursor:pointer;transition:.15s;border-left:2px solid transparent;
+  }
+  .item:hover{background:rgba(127,212,224,.10);color:#E5F4F7;}
+  .item.active{
+    background:linear-gradient(90deg,rgba(255,196,46,.16),rgba(255,196,46,.04));
+    color:#FFE9A8;box-shadow:inset 0 0 0 1px rgba(255,196,46,.35);
+    border-left-color:#FFC42E;
+  }
+  .item .dot{
+    margin-top:4px;width:6px;height:6px;border-radius:50%;flex:0 0 6px;
+    background:#7FD4E0;box-shadow:0 0 8px rgba(127,212,224,.9);
+  }
+  .item.active .dot{background:#FFC42E;box-shadow:0 0 10px rgba(255,196,46,.9);}
+  .item .info{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .item .iname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:inherit;}
+  .item .iaddr{
+    font-size:10px;color:#7FA8BC;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .item .itime{
+    font-size:10px;font-weight:700;color:#FFC42E;
+    display:flex;align-items:center;gap:4px;
+  }
+  .item .itime::before{content:"◷";color:#FFD966;font-size:11px;}
+  .empty{padding:50px 0;text-align:center;color:#5E7E90;font-size:13px;}
+
+  .side-foot{padding:12px 16px 16px;border-top:1px solid rgba(127,212,224,.12);}
+  .side-foot button{
+    width:100%;padding:10px;border-radius:10px;cursor:pointer;font-size:13px;
+    background:linear-gradient(180deg,rgba(127,212,224,.16),rgba(127,212,224,.05));
+    border:1px solid rgba(127,212,224,.35);color:#7FD4E0;transition:.2s;
+    font-family:inherit;font-weight:700;letter-spacing:.6px;
+  }
+  .side-foot button:hover{
+    background:linear-gradient(180deg,rgba(255,196,46,.20),rgba(255,196,46,.08));
+    color:#FFD966;border-color:rgba(255,196,46,.5);
+  }
+
+  main{flex:1;position:relative;min-width:0;}
+  #map{width:100%;height:100%;}
+  #map .loading{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#7FD4E0;font-size:14px;letter-spacing:1px;
+  }
+  .legend{
+    position:absolute;left:18px;bottom:18px;
+    background:linear-gradient(180deg,rgba(10,32,48,.88),rgba(8,24,36,.88));
+    border:1px solid rgba(127,212,224,.22);border-radius:12px;padding:12px 14px;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    font-size:11px;color:#8FB5C4;box-shadow:0 6px 24px rgba(0,0,0,.4);
+    pointer-events:none;
+  }
+  .legend-title{
+    margin-bottom:9px;font-weight:800;letter-spacing:1px;font-size:11px;
+    background:linear-gradient(90deg,#7FD4E0,#FFC42E);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .legend-item{display:flex;align-items:center;gap:8px;margin:5px 0;}
+  .legend-item i{width:16px;height:10px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.3);}
+  .legend-item.overseas-item{
+    margin-top:8px;padding-top:8px;border-top:1px solid rgba(127,212,224,.12);
+    color:#FFD966;
+  }
+  .hint{
+    position:absolute;right:18px;bottom:18px;font-size:11px;
+    color:#5E7E90;pointer-events:none;
+  }
+
+  .overseas-toast{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.92);
+    padding:18px 26px;border-radius:14px;
+    background:linear-gradient(180deg,rgba(15,40,58,.98),rgba(8,24,36,.98));
+    border:1px solid rgba(255,196,46,.5);
+    color:#FFE9A8;font-size:13px;line-height:1.7;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 40px rgba(255,196,46,.25);
+    z-index:999;pointer-events:none;
+    opacity:0;visibility:hidden;
+    transition:opacity .28s ease,transform .28s ease,visibility .28s;
+    max-width:280px;
+  }
+  .overseas-toast.show{
+    opacity:1;visibility:visible;
+    transform:translate(-50%,-50%) scale(1);
+  }
+  .overseas-toast .flag{font-size:22px;display:block;margin-bottom:6px;}
+  .overseas-toast .t-name{font-weight:800;font-size:15px;color:#FFD966;margin-bottom:4px;}
+  .overseas-toast .t-country{font-size:11px;color:#7FD4E0;letter-spacing:1px;margin-bottom:8px;}
+  .overseas-toast .t-time{font-size:11px;color:#8FB5C4;}
+
+  .mobile-toggle, .mobile-overlay { display:none; }
+  @media (max-width: 768px) {
+    aside{
+      position:fixed;left:0;top:0;bottom:0;width:88%;max-width:340px;
+      transform:translateX(-100%);transition:transform .26s ease;
+      box-shadow:6px 0 36px rgba(0,0,0,.6);
+    }
+    aside.open{ transform:translateX(0); }
+    main{ flex:1; width:100%; }
+
+    .mobile-toggle{
+      display:flex;align-items:center;justify-content:center;
+      position:fixed;top:calc(12px + env(safe-area-inset-top));left:12px;z-index:110;
+      width:44px;height:44px;border-radius:12px;
+      background:linear-gradient(180deg,rgba(10,32,48,.94),rgba(8,24,36,.94));
+      border:1px solid rgba(127,212,224,.35);
+      color:#7FD4E0;font-size:20px;cursor:pointer;
+      box-shadow:0 4px 18px rgba(0,0,0,.5),0 0 20px rgba(127,212,224,.15);
+      font-family:inherit;
+    }
+    .mobile-overlay{
+      display:block;position:fixed;inset:0;z-index:99;
+      background:rgba(4,14,22,.65);
+      opacity:0;visibility:hidden;transition:opacity .26s ease, visibility .26s;
+    }
+    .mobile-overlay.show{ opacity:1;visibility:visible; }
+
+    .side-head{padding:16px 16px 12px;}
+    .side-head h1{font-size:16px;}
+    .side-head .sub{font-size:11px;margin:5px 0 12px;}
+    .stat b{font-size:19px;}
+
+    .legend{left:10px;bottom:calc(10px + env(safe-area-inset-bottom));padding:9px 11px;font-size:10px;}
+    .legend-title{font-size:10px;}
+    .legend-item i{width:12px;height:8px;}
+    .hint{display:none;}
+
+    .overseas-toast{max-width:82%;padding:16px 20px;}
+  }
+</style>
+</head>
+<body>
+<button class="mobile-toggle" id="mobileToggle" aria-label="菜单">☰</button>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<div id="app">
+  <aside id="sidebar">
+    <div class="side-head">
+      <span class="brand-tag">HAPPY BIRTHDAY</span>
+      <h1>白鹿0923 · 大屏投放总览</h1>
+      <p class="sub">全国 294 屏 + 海外 7 屏 · 点击省份/点位，快速定位</p>
+      <div class="stats">
+        <div class="stat"><b id="statTotal">0</b><span>大屏点位</span></div>
+        <div class="stat"><b id="statProv">0</b><span>覆盖省份</span></div>
+      </div>
+      <div class="search-wrap">
+        <input id="search" type="text" placeholder="搜索商场 / 城市 / 时间…" autocomplete="off" />
+      </div>
+    </div>
+    <div id="list" class="list"></div>
+    <div class="side-foot">
+      <button id="btnReset">返回全国视图</button>
+    </div>
+  </aside>
+  <main>
+    <div id="map"><div class="loading" id="loading">地图加载中…</div></div>
+    <div class="legend">
+      <div class="legend-title">大屏数量</div>
+      <div class="legend-item"><i style="background:#0E2A3A"></i>0 个</div>
+      <div class="legend-item"><i style="background:#1B5566"></i>1 - 2 个</div>
+      <div class="legend-item"><i style="background:#2E8496"></i>3 - 7 个</div>
+      <div class="legend-item"><i style="background:#7FD4E0"></i>8 - 14 个</div>
+      <div class="legend-item"><i style="background:#FFC42E"></i>15 - 25 个</div>
+      <div class="legend-item"><i style="background:#FF9E2C"></i>25 个以上</div>
+      <div class="legend-item overseas-item"><i style="background:#FFD966;box-shadow:0 0 6px rgba(255,196,46,.8)"></i>海外应援</div>
+    </div>
+    <div class="hint">滚轮缩放 · 拖拽平移 · 放大后显示省份名称</div>
+  </main>
+</div>
+
+<div class="overseas-toast" id="overseasToast">
+  <span class="flag" id="toastFlag">🌍</span>
+  <div class="t-name" id="toastName"></div>
+  <div class="t-country" id="toastCountry"></div>
+  <div class="t-time" id="toastTime"></div>
+</div>
+
+<script>
+/* =========================================================
+   ①  国内数据：名称@省份城市@时间
+   ========================================================= */
+const MALLS = [
+  /* 浙江 */
+  "绍兴新昌万达广场@浙江绍兴@9:40-22:00","绍兴诸暨万达@浙江绍兴@10:00-22:00","杭州临平万达@浙江杭州@10:00-22:00","绍兴上虞万达@浙江绍兴@10:00-22:00","宁波鄞州万达@浙江宁波@10:00-21:00","杭州未来科技城万达广场@浙江杭州@10:00-22:00","宁波象山万达广场@浙江宁波@10:00-22:00","湖州吴兴万达广场@浙江湖州@10:00-22:00","嘉兴龙鼎万达@浙江嘉兴@10:00-22:00","杭州富阳万达广场@浙江杭州@10:00-22:00","柯桥万达广场@浙江绍兴@10:00-22:00","柯桥宝龙广场@浙江绍兴@10:00-22:00","龙湖绍兴镜湖天街@浙江绍兴@10:00-22:00","绍兴天地@浙江绍兴@10:00-22:01","宁波来福士@浙江宁波@10:00-22:00","舟山普陀天地@浙江舟山@17:30-22:00","龙湖宁波海曙天街@浙江宁波@10:00-21:30","湖州爱山银泰城@浙江湖州@10:00-21:30","嘉兴桐乡万象汇@浙江嘉兴@10:00-22:00","星盛商业嘉兴星河CoCo city@浙江嘉兴@10:00-22:00","宁波江北万达@浙江宁波@10:00-21:30","温州瓯海银泰百货@浙江温州@10:00-22:00","金华江北银泰@浙江金华@10:00-21:30","丽水银泰城@浙江丽水@10:00-22:00","台州奥特莱斯广场@浙江台州@10:00-21:30","杭州湖滨88@浙江杭州@10:00-22:00","宁波方特@浙江宁波@10:00-18:00",
+  /* 河南 */
+  "南阳宛城万达@河南南阳@10:00-22:00","开封龙亭万达广场@河南开封@10:00-22:00","商丘港汇万达广场@河南商丘@10:00-22:00","濮阳经开万达广场@河南濮阳@10:00-22:00","洛阳偃师万达广场@河南洛阳@10:00-22:00","南阳万悦城@河南南阳@14:00-22:00","漯河西城万达广场@河南漯河@10:00-22:00","郑州中原万达广场@河南郑州@10:00-22:00","郑州二七万达广场@河南郑州@10:00-22:00","南阳高新吾悦@河南南阳@10:00-22:00","信阳西雅城@河南信阳@17:00-21:30","郑州高新万达广场@河南郑州@10:00-22:00","瀚海海尚mall@河南郑州@10:00-22:00","郑州无限城@河南郑州@11:30-13:00 / 17:00-21:00",
+  /* 甘肃 */
+  "天水秦州万达广场@甘肃天水@10:00-22:00","兰州南滨河万达广场@甘肃兰州@10:00-21:30","酒泉肃州万达广场@甘肃酒泉@10:00-21:00","武威凉州万达广场@甘肃武威@10:00-21:00","兰州城关万达广场@甘肃兰州@10:00-22:00","兰州万达茂@甘肃兰州@11:00-18:00",
+  /* 黑龙江 */
+  "鸡西万达广场@黑龙江鸡西@9:30-21:00","哈尔滨香坊万达广场@黑龙江哈尔滨@10:00-21:00","哈尔滨凯德学府@黑龙江哈尔滨@10:00-21:30","哈尔滨松北万象汇@黑龙江哈尔滨@9:30-21:30","哈尔滨红博会展购物广场@黑龙江哈尔滨@9:30-21:00","大庆萨尔图万达广场@黑龙江大庆@9:30-20:00","哈尔滨融创茂@黑龙江哈尔滨@9:00-21:00","双鸭山松江国际购物大厦@黑龙江双鸭山@8:00-20:30","正阳明珠购物广场@黑龙江哈尔滨@14:00-20:00",
+  /* 湖北 */
+  "武汉光谷K11@湖北武汉@10:00-22:00","恩施九立方国际购物中心@湖北恩施@15:00-21:30","国卓广场@湖北黄石@10:00-20:00","黄石武商MALL@湖北黄石@9:30-22:00","黄石团城山万达广场@湖北黄石@10:00-22:00",
+  /* 上海 */
+  "上海协信星光广场@上海@10:00-22:00","上海宝山万达广场@上海@10:00-22:00","上海宝杨宝龙广场@上海@10:00-21:00","上海江桥万达广场@上海@10:00-22:00","大华光启城@上海@10:00-22:00","上海浦东禹悦汇@上海@12:00-17:00","上海吴泾宝龙广场@上海@17:00-22:00","七宝宝龙城@上海@10:00-22:00","上海南翔印象城@上海@10:00-22:00","上海海上世界大屏@上海@10:00-22:00","上海奉贤宝龙广场@上海@10:00-22:00",
+  /* 四川 */
+  "攀枝花东区万达广场@四川攀枝花@10:00-22:00","乐山万达@四川乐山@10:00-22:00","内江东兴区万达广场@四川内江@10:00-22:00","成都优悦奥莱广场@四川成都@20:00-22:00 / 10:30-22:00","南充高坪区万达广场@四川南充@10:00-21:00","雅安雨城万达广场@四川雅安@11:00-21:00","宜宾万象天地@四川宜宾@10:00-22:00","资阳雁江区万达广场@四川资阳@10:00-21:00","自贡自流井区万达广场@四川自贡@10:00-21:00","金牛万达广场@四川成都@10:00-21:30","都江堰大融城@四川成都@10:00-22:00","成都远大购物中心@四川成都@10:00-22:00","成都环球中心@四川成都@10:00-22:00","遂宁船山万达@四川遂宁@10:00-22:00",
+  /* 辽宁 */
+  "大连普兰店万达广场@辽宁大连@9:30-21:30","大连奥电未来城@辽宁大连@10:00-21:00","沈阳太原街苏宁易购广场@辽宁沈阳@10:00-20:00","沈阳北一路万达广场@辽宁沈阳@9:30-21:30","抚顺新抚万达@辽宁抚顺@9:30-20:30","抚顺顺城万达广场@辽宁抚顺@10:00-19:00","大连沃特时尚广场@辽宁大连@9:00-21:00","鞍山高新万达广场@辽宁鞍山@10:00-21:00","沈阳文化路万达广场@辽宁沈阳@10:00-21:30","中街·盛京龙城@辽宁沈阳@10:30-20:30","王府井奥莱棋盘山小镇@辽宁沈阳@9:30-21:30","阜新玉龙万达广场@辽宁阜新@10:00-21:00","安盛购物广场金州店@辽宁大连@9:00-21:00","沈阳方特@辽宁沈阳@10:00-18:00",
+  /* 安徽 */
+  "蚌埠蚌山万达广场@安徽蚌埠@10:00-21:30","铜陵吾悦广场@安徽铜陵@10:00-21:30","六安霍邱万达@安徽六安@9:30-21:30","蚌埠吾悦广场@安徽蚌埠@9:30-21:30","淮北吾悦广场@安徽淮北@10:00-21:30","合肥瑶海万达广场@安徽合肥@9:30-22:00","芜湖弋江万达广场@安徽芜湖@9:30-21:30","亳州谯城万达广场@安徽亳州@10:30-21:00","宿州CBD万达广场@安徽宿州@17:30-20:00","合肥融创茂@安徽合肥@10:00-21:30","芜湖苏宁广场@安徽芜湖@10:00-21:00","芜湖镜湖万达广场@安徽芜湖@9:30-21:30","滁州苏宁广场@安徽滁州@16:30-21:30","合肥滨湖银泰广场@安徽合肥@10:00-21:00","合肥政务银泰中心@安徽合肥@10:00-21:00","阜阳宝龙广场@安徽阜阳@9:30-21:30","六安银泰百货@安徽六安@10:00-21:30","铜陵雨润中央商场@安徽铜陵@9:30-21:30","合肥徽园@安徽合肥@15:00-22:00","黄山黎阳in巷@安徽黄山@10:00-22:00 / 16:00-22:00","芜湖古城@安徽芜湖@10:00-22:00 / 16:00-22:00","淮南春申里@安徽淮南@15:30-21:00","阜阳双清湾@安徽阜阳@10:00-18:00","安庆弘阳广场@安徽安庆@10:00-21:30","铜陵铜官万达广场@安徽铜陵@10:30-21:30","合肥之心城购物中心@安徽合肥@10:00-22:00","芜湖方特@安徽芜湖@10:00-18:00",
+  /* 湖南 */
+  "怀化溆浦万达广场@湖南怀化@9:00-22:00","长沙银盆岭万达广场@湖南长沙@10:00-21:00","湘潭高新万达广场@湖南湘潭@10:00-21:00","常德汉寿万达广场@湖南常德@10:00-21:30","长沙君尚购物中心@湖南长沙@8:30-10:00","株洲云龙万达广场@湖南株洲@10:00-12:00 / 14:00-21:30","长沙环宇城@湖南长沙@10:00-22:00","株洲方特@湖南株洲@10:00-18:00",
+  /* 江苏 */
+  "常州武进万达@江苏常州@10:00-21:00","徐州铜山万达广场@江苏徐州@10:00-21:30","无锡滨湖万达广场@江苏无锡@10:00-22:00","无锡高新万达广场@江苏无锡@10:00-21:30","常州弘阳广场@江苏常州@10:00-21:00","南京中央商场@江苏南京@10:00-22:00","镇江苏宁广场@江苏镇江@10:00-21:30","常州天宁吾悦广场@江苏常州@10:00-21:00",
+  /* 山西 */
+  "晋中新建万达广场@山西晋中@10:00-22:00","太原龙城万达广场@山西太原@10:00-22:00","山西晋城万达广场@山西晋城@10:00-22:00","晋中怡然青年广场@山西晋中@19:00-22:45","晋中定阳万达广场@山西晋中@10:00-22:30","运城盐湖万达广场@山西运城@10:00-22:00","吕梁孝义万达@山西吕梁@10:00-22:00",
+  /* 吉林 */
+  "长春车城万达广场@吉林长春@9:30-21:30","长春中商世界里@吉林长春@9:30-21:00","吉林通化万达@吉林通化@10:00-21:00","吉林财富购物广场@吉林吉林@10:00-21:00",
+  /* 宁夏 */
+  "银川兴庆万达@宁夏银川@10:00-22:00","新百中心@宁夏银川@10:00-21:30","江山阅恒大城@宁夏银川@10:00-21:00","银川西夏万达@宁夏银川@10:00-21:00","中卫鼓楼万达广场@宁夏中卫@9:00-22:00",
+  /* 天津 */
+  "天津和平吾悦@天津@10:00-21:00","天津大港万达广场@天津@10:00-21:30","天津大悦城@天津@10:00-22:00","天津和平印象城@天津@10:00-21:30","天津和平大悦城@天津@10:00-22:00","京东mall天津滨海店@天津@10:00-21:00","天津河东金茂汇@天津@10:00-21:00 / 19:30-21:00","天津梅江环宇城@天津@19:30-21:00","天津东丽万达广场@天津@10:00-21:00","天津方特@天津@10:00-18:00","天津河东万达广场@天津@10:00-22:00",
+  /* 新疆 */
+  "乌鲁木齐德汇万达广场@新疆乌鲁木齐@11:00-22:30","新疆美美3购物中心@新疆乌鲁木齐@18:00-2:00 / 11:00-23:30","北京路汇嘉时代@新疆乌鲁木齐@10:30-22:30","乌鲁木齐杉杉奥特莱斯商场@新疆乌鲁木齐@11:00-22:00","喀什古城万达广场@新疆喀什@11:00-23:00",
+  /* 重庆 */
+  "重庆巴南万达@重庆@10:30-22:00","重庆铜梁万达广场@重庆@10:00-22:00","解放碑大融城@重庆@10:00-22:00","重庆江津万达@重庆@10:30-22:00","重庆大渡口万达广场@重庆@10:00-22:00",
+  /* 福建 */
+  "厦门集美万达广场@福建厦门@10:00-22:00","莆田城厢万达@福建莆田@10:00-22:00","福州万象城@福建福州@10:00-22:00","三明三元万达广场@福建三明@10:00-22:00","厦门首创奥特莱斯@福建厦门@11:00-21:00","泉州晋江万达广场@福建泉州@10:00-22:00","厦门万科云城@福建厦门@10:00-22:00","莆田正荣财富中心@福建莆田@14:00-22:00","龙岩上杭万达广场@福建龙岩@18:00-22:00",
+  /* 广东 */
+  "肇庆鼎湖万达广场@广东肇庆@10:00-22:00","中山汇丰城@广东中山@11:00-22:00 / 18:00-22:00","东莞长安万达广场@广东东莞@10:30-22:00","江门蓬江万达广场@广东江门@10:00-22:00","惠州天虹商场@广东惠州@10:00-22:00","广州白云百信广场@广东广州@10:00-22:00","河源东源万达广场@广东河源@12:00-22:00","梅州客都汇@广东梅州@10:15-13:15 / 15:00-22:00","揭阳普宁翔悦时代@广东揭阳@10:00-22:30","汕头合胜广场@广东汕头@10:00-22:00","深圳龙岗星河WORLD·COCO Park@广东深圳@10:00-22:00","江门江海万达@广东江门@11:00-21:00","深圳盐田壹海城@广东深圳@10:00-22:00","东基·神西环宇城@广东佛山@10:00-22:00","中华美食城@广东广州@16:00-19:00","深圳南山欢乐颂@广东深圳@10:00-22:00 / 17:00-22:00","佛山悦然广场@广东佛山@10:00-22:00","茂名电白万达广场@广东茂名@10:00-22:00","广州南沙万达广场@广东广州@10:00-22:00","东莞莞城万科广场@广东东莞@10:00-22:00","湛江经开万达广场@广东湛江@10:00-22:00","广州黄埔大悦汇@广东广州@17:40-21:30","佛山天虹购物中心@广东佛山@18:00-22:00","东莞大朗德汇嘉里广场@广东东莞@11:00-21:00","广州融创茂@广东广州@10:00-22:00","深圳坂田天虹@广东深圳@10:00-22:00","深圳龙华星河COCO City@广东深圳@10:00-22:00","广州荔领观广场@广东广州@10:00-22:00","珠海怡里音乐城@广东珠海@10:00-22:00 / 18:00-22:00","云浮罗定客都汇@广东云浮@11:30-12:00 / 16:00-22:00","深圳福城天虹购物中心@广东深圳@10:00-22:00","佛山禅九凯熙国际儿童城@广东佛山@14:00-22:00","大中华国际金融中心@广东深圳@8:00-22:00",
+  /* 广西 */
+  "柳州柳南万达@广西柳州@11:00-21:30","南宁灵岭万达@广西南宁@18:00-22:00","贵港北万达@广西贵港@10:00-22:00","北海和安宁春城@广西北海@9:00-13:00 / 14:00-22:00","南宁百盛@广西南宁@10:00-22:00","柳州城中万达@广西柳州@11:00-22:00","桂林临桂万达@广西桂林@11:00-22:00","桂林万福广场@广西桂林@17:00-21:00","南宁新朝阳商业广场@广西南宁@11:00-22:00","南宁五象万象汇@广西南宁@10:00-22:00","南宁江南盛天领地@广西南宁@11:00-22:00","南宁大唐天城@广西南宁@10:00-22:00","来宾地王商业街@广西来宾@17:00-22:00","钦州长融世贸广场@广西钦州@10:00-14:00 / 16:00-22:00","南宁朝阳里@广西南宁@10:00-22:00",
+  /* 河北 */
+  "保定嘉德万达广场@河北保定@11:00-21:00","秦皇岛海港万达广场@河北秦皇岛@10:00-21:30","沧州任丘万达广场@河北沧州@10:00-21:30","石家庄勒泰商业中心@河北石家庄@10:00-21:30","石家庄北国先天下@河北石家庄@10:00-22:00","西美花街生活工场@河北石家庄@10:30-21:00","秦皇岛乐都汇@河北秦皇岛@9:00-21:00","邢台襄都万达广场@河北邢台@10:00-21:30","武安新世纪@河北邯郸@9:30-20:00",
+  /* 江西 */
+  "赣州龙南万达广场@江西赣州@10:00-22:00","九江濂溪万达广场@江西九江@11:30-21:00","南昌万象天地@江西南昌@10:00-22:00","景德镇宝龙广场@江西景德镇@10:00-22:00","南昌百盛@江西南昌@10:00-22:00","南昌红谷滩绿地缤纷城@江西南昌@10:00-22:00","上饶万达商场@江西上饶@10:00-22:00","上饶天虹商场@江西上饶@10:00-22:00","赣州万象城@江西赣州@10:00-22:00",
+  /* 山东 */
+  "潍坊坊子泰华城@山东潍坊@9:30-21:30","青岛卓悦里@山东青岛@10:00-20:30","济南华山环宇城@山东济南@7:30-9:30 / 11:00-13:00","青岛丽达购物中心@山东青岛@8:30-21:30 / 9:30-22:00","济宁龙贵购物广场@山东济宁@9:00-22:05","济南高新万达@山东济南@10:00-22:00","青岛书院万达广场@山东青岛@10:00-18:00","潍坊吾悦广场@山东潍坊@10:00-21:30","济南融创乐园西广场@山东济南@10:00-20:00",
+  /* 陕西 */
+  "西安大茂城@陕西西安@10:00-22:00","西安钟楼开元商城@陕西西安@10:00-22:00","荣民时代广场@陕西西安@10:00-22:00","咸阳秦都万达大屏@陕西咸阳@10:00-22:00","渭南高新万达@陕西渭南@10:00-22:00","渭南临渭万达广场@陕西渭南@10:00-22:00","西咸吾悦广场@陕西西安@10:00-22:00",
+  /* 贵州 */
+  "方图荟·海豚广场@贵州贵阳@10:30-22:00","贵阳青云市集@贵州贵阳@10:00-24:00","贵阳花果园购物中心@贵州贵阳@11:00-20:00","贵阳万象城@贵州贵阳@10:00-22:00","贵阳国贸CCpark@贵州贵阳@10:00-22:00","贵阳龙湾万达@贵州贵阳@10:00-22:00",
+  /* 青海 */
+  "西宁力盟商业步行街@青海西宁@10:00-21:30","西宁海湖万达广场@青海西宁@10:00-22:00","西宁北川万达广场@青海西宁@10:00-21:00","西宁王府井百货@青海西宁@9:30-21:00",
+  /* 内蒙古 */
+  "乌海海勃湾万达广场@内蒙古@10:00-21:00",
+  /* 云南 */
+  "昆明之船的大屏@云南昆明@11:00-20:00","昆明东MALL明星大屏@云南昆明@10:00-22:00","昆明悦城爱尊海@云南昆明@10:00-22:00","昆明新迎新城@云南昆明@10:00-21:50","西双版纳景海购物中心@云南西双版纳@10:00-22:00",
+  /* 海南 */
+  "海口万达@海南海口@10:00-22:00",
+  /* 港澳台 (6) */
+  "尖沙咀加拿分道LED@香港@9.23 · 15秒130次",
+  "葡京人大屏@澳门@9.23 · 15秒130次",
+  "UNIQUEX(星皓店)@澳门@9.23 · 15秒130次",
+  "NIQUEX(白馬行店)@澳门@9.23 · 15秒130次",
+  "UNIQUEX(上葡京店)@澳门@9.23 · 15秒130次",
+  "西门町武昌街大屏@台北@9.23 · 8S/次"
+];
+
+/* =========================================================
+   ①.5  海外应援数据
+   ========================================================= */
+const OVERSEAS_MALLS = [
+  "MBK CENTER@泰国@9.21-9.23 · 108次/天",
+  "泰国国家运动场站@泰国@9.23 · 108次/天",
+  "SIAM 暹罗@泰国@9.23 · 108次/天",
+  "阿索ASOKE@泰国@9.23 · 108次/天",
+  "现代百货店@韩国@9.23 · 20S/100次",
+  "武吉免登路金三角LOT10购物中心@马来西亚·吉隆坡@9.23 · 15秒180次",
+  "唐人街地平线4屏组合@新加坡@9.23 · 96次/天"
+];
+
+const FLAG_MAP = {
+  "泰国": "🇹🇭",
+  "韩国": "🇰🇷",
+  "马来西亚·吉隆坡": "🇲🇾",
+  "新加坡": "🇸🇬"
+};
+
+/* =========================================================
+   ②  城市坐标字典
+   ========================================================= */
+const REGION_DATA = {
+  "北京市": {"北京":[116.41,39.90]},
+  "天津市": {"天津":[117.20,39.13]},
+  "上海市": {"上海":[121.47,31.23]},
+  "重庆市": {"重庆":[106.55,29.56]},
+  "河北省": {"石家庄":[114.51,38.04],"唐山":[118.18,39.63],"保定":[115.46,38.87],"廊坊":[116.68,39.52],"秦皇岛":[119.60,39.94],"邯郸":[114.49,36.63],"邢台":[114.51,37.07],"沧州":[116.84,38.30],"承德":[117.96,40.95],"张家口":[114.88,40.82],"衡水":[115.67,37.74]},
+  "山西省": {"太原":[112.55,37.87],"大同":[113.30,40.08],"临汾":[111.52,36.09],"运城":[111.00,35.02],"长治":[113.12,36.20],"晋中":[112.75,37.69],"晋城":[112.85,35.50],"吕梁":[111.14,37.52]},
+  "内蒙古自治区": {"呼和浩特":[111.75,40.84],"包头":[109.84,40.66],"鄂尔多斯":[109.98,39.61],"乌海":[106.83,39.66],"赤峰":[118.96,42.26],"通辽":[122.24,43.65]},
+  "辽宁省": {"沈阳":[123.43,41.80],"大连":[121.62,38.92],"鞍山":[122.99,41.11],"抚顺":[123.96,41.88],"锦州":[121.13,41.10],"营口":[122.24,40.67],"阜新":[121.67,42.02]},
+  "吉林省": {"长春":[125.32,43.90],"吉林":[126.55,43.84],"四平":[124.35,43.17],"通化":[125.94,41.72],"延边":[129.51,42.89]},
+  "黑龙江省": {"哈尔滨":[126.53,45.80],"大庆":[125.10,46.59],"齐齐哈尔":[123.92,47.35],"牡丹江":[129.63,44.55],"鸡西":[130.97,45.30],"双鸭山":[131.16,46.65]},
+  "江苏省": {"南京":[118.80,32.06],"苏州":[120.62,31.30],"无锡":[120.30,31.57],"常州":[119.97,31.81],"南通":[120.86,32.01],"徐州":[117.28,34.26],"扬州":[119.42,32.39],"盐城":[120.16,33.35],"泰州":[119.92,32.46],"镇江":[119.45,32.20],"淮安":[119.02,33.61],"连云港":[119.16,34.60],"宿迁":[118.28,33.96]},
+  "浙江省": {"杭州":[120.15,30.28],"宁波":[121.55,29.87],"温州":[120.70,28.00],"嘉兴":[120.75,30.75],"绍兴":[120.58,30.03],"金华":[119.65,29.09],"台州":[121.43,28.66],"湖州":[120.09,30.89],"衢州":[118.87,28.94],"丽水":[119.92,28.45],"舟山":[122.21,29.99]},
+  "安徽省": {"合肥":[117.28,31.86],"芜湖":[118.38,31.33],"蚌埠":[117.36,32.94],"阜阳":[115.82,32.90],"安庆":[117.05,30.52],"马鞍山":[118.51,31.67],"宿州":[116.98,33.63],"六安":[116.51,31.75],"铜陵":[117.82,30.94],"淮北":[116.80,33.96],"亳州":[115.78,33.85],"滁州":[118.32,32.30],"黄山":[118.34,29.71],"淮南":[117.02,32.63]},
+  "福建省": {"福州":[119.30,26.08],"厦门":[118.09,24.48],"泉州":[118.59,24.91],"漳州":[117.65,24.51],"莆田":[119.01,25.43],"宁德":[119.53,26.66],"三明":[117.64,26.26],"龙岩":[117.02,25.08]},
+  "江西省": {"南昌":[115.89,28.68],"赣州":[114.94,25.85],"九江":[116.00,29.71],"上饶":[117.94,28.45],"宜春":[114.42,27.80],"吉安":[114.99,27.11],"景德镇":[117.18,29.27]},
+  "山东省": {"济南":[117.00,36.65],"青岛":[120.38,36.07],"烟台":[121.45,37.46],"潍坊":[119.16,36.71],"淄博":[118.05,36.81],"临沂":[118.35,35.10],"济宁":[116.59,35.41],"泰安":[117.13,36.19],"威海":[122.12,37.51],"东营":[118.67,37.43],"日照":[119.53,35.42],"聊城":[115.98,36.46],"德州":[116.31,37.44],"滨州":[117.97,37.38],"枣庄":[117.32,34.81],"菏泽":[115.48,35.23]},
+  "河南省": {"郑州":[113.63,34.75],"洛阳":[112.45,34.62],"南阳":[112.53,32.99],"开封":[114.31,34.80],"新乡":[113.88,35.30],"许昌":[113.85,34.04],"商丘":[115.65,34.44],"信阳":[114.09,32.15],"周口":[114.70,33.62],"安阳":[114.35,36.10],"平顶山":[113.19,33.77],"焦作":[113.24,35.22],"驻马店":[114.02,32.98],"濮阳":[115.03,35.76],"漯河":[114.02,33.58]},
+  "湖北省": {"武汉":[114.31,30.59],"宜昌":[111.29,30.69],"襄阳":[112.14,32.04],"荆州":[112.24,30.33],"黄石":[115.04,30.20],"十堰":[110.79,32.65],"孝感":[113.92,30.92],"黄冈":[114.87,30.45],"恩施":[109.49,30.27]},
+  "湖南省": {"长沙":[112.94,28.23],"株洲":[113.13,27.83],"湘潭":[112.94,27.83],"衡阳":[112.57,26.89],"岳阳":[113.13,29.36],"常德":[111.70,29.03],"郴州":[113.02,25.77],"邵阳":[111.47,27.24],"怀化":[110.00,27.57]},
+  "广东省": {"广州":[113.26,23.13],"深圳":[114.06,22.54],"东莞":[113.75,23.02],"佛山":[113.12,23.02],"珠海":[113.55,22.27],"中山":[113.39,22.52],"惠州":[114.41,23.11],"汕头":[116.68,23.35],"江门":[113.08,22.58],"湛江":[110.36,21.27],"肇庆":[112.47,23.05],"茂名":[110.93,21.66],"揭阳":[116.37,23.55],"梅州":[116.12,24.30],"清远":[113.05,23.70],"韶关":[113.60,24.81],"潮州":[116.62,23.66],"河源":[114.70,23.74],"阳江":[111.98,21.86],"汕尾":[115.38,22.79],"云浮":[112.04,22.92]},
+  "广西壮族自治区": {"南宁":[108.32,22.82],"柳州":[109.42,24.33],"桂林":[110.29,25.27],"北海":[109.12,21.48],"玉林":[110.15,22.63],"梧州":[111.28,23.48],"贵港":[109.60,23.11],"钦州":[108.65,21.98],"来宾":[109.23,23.75]},
+  "海南省": {"海口":[110.20,20.04],"三亚":[109.51,18.25],"儋州":[109.58,19.52]},
+  "四川省": {"成都":[104.07,30.57],"绵阳":[104.68,31.47],"德阳":[104.40,31.13],"南充":[106.11,30.84],"宜宾":[104.63,28.77],"泸州":[105.44,28.87],"乐山":[103.76,29.58],"自贡":[104.78,29.34],"达州":[107.50,31.21],"内江":[105.06,29.58],"攀枝花":[101.72,26.58],"雅安":[103.00,29.98],"资阳":[104.65,30.12],"遂宁":[105.57,30.51]},
+  "贵州省": {"贵阳":[106.63,26.65],"遵义":[106.93,27.73],"六盘水":[104.83,26.59],"安顺":[105.93,26.25],"毕节":[105.29,27.30]},
+  "云南省": {"昆明":[102.83,24.88],"曲靖":[103.80,25.49],"玉溪":[102.55,24.35],"大理":[100.23,25.59],"丽江":[100.23,26.86],"红河":[103.38,23.37],"西双版纳":[100.80,22.01]},
+  "西藏自治区": {"拉萨":[91.11,29.65],"日喀则":[88.88,29.27]},
+  "陕西省": {"西安":[108.94,34.34],"咸阳":[108.71,34.33],"宝鸡":[107.14,34.36],"渭南":[109.51,34.50],"榆林":[109.73,38.29],"汉中":[107.03,33.08],"延安":[109.49,36.60]},
+  "甘肃省": {"兰州":[103.82,36.06],"天水":[105.72,34.58],"酒泉":[98.49,39.73],"庆阳":[107.64,35.71],"武威":[102.63,37.93]},
+  "青海省": {"西宁":[101.78,36.62],"海西":[97.37,37.37]},
+  "宁夏回族自治区": {"银川":[106.23,38.49],"石嘴山":[106.38,39.02],"吴忠":[106.20,37.99],"中卫":[105.19,37.51]},
+  "新疆维吾尔自治区": {"乌鲁木齐":[87.62,43.83],"克拉玛依":[84.89,45.58],"喀什":[75.99,39.47],"伊犁":[81.32,43.92],"昌吉":[87.30,44.01]},
+  "台湾省": {"台北":[121.52,25.03],"高雄":[120.30,22.62],"台中":[120.68,24.14]},
+  "香港特别行政区": {"香港":[114.17,22.32]},
+  "澳门特别行政区": {"澳门":[113.55,22.20]}
+};
+
+/* =========================================================
+   ③  工具
+   ========================================================= */
+function shortName(n){ return n.replace(/(特别行政区|自治区|省|市|维吾尔|壮族|回族)/g,''); }
+const SHORT2FULL = {};
+const PROVINCE_CENTER = {};
+for (const full in REGION_DATA){
+  SHORT2FULL[shortName(full)] = full;
+  const firstCity = Object.keys(REGION_DATA[full])[0];
+  PROVINCE_CENTER[full] = REGION_DATA[full][firstCity];
+}
+PROVINCE_CENTER["甘肃省"] = [100.3, 37.8];
+PROVINCE_CENTER["内蒙古自治区"] = [111.5, 41.5];
+
+const LABEL_OFFSET = {
+  "河北省":         [-14, 18],
+  "甘肃省":         [-30, -14],
+  "香港特别行政区": [0, 30],
+  "澳门特别行政区": [0, 30],
+  "北京市":         [-6, -2],
+  "天津市":         [12, 6],
+  "内蒙古自治区":   [8, -6]
+};
+const LABEL_TEXT = {
+  "香港特别行政区": "香港",
+  "澳门特别行政区": "澳门"
+};
+
+function matchProvince(geoName){ return SHORT2FULL[shortName(geoName)] || null; }
+
+const CITY_INDEX = [];
+for (const prov in REGION_DATA){
+  for (const city in REGION_DATA[prov]){
+    const c = REGION_DATA[prov][city];
+    CITY_INDEX.push({ name: city, lng: c[0], lat: c[1], province: prov });
+  }
+}
+CITY_INDEX.sort((a,b)=> b.name.length - a.name.length);
+
+function geocode(addr){
+  let best = null, bestIdx = -1;
+  for (const c of CITY_INDEX){
+    const i = addr.indexOf(c.name);
+    if (i > bestIdx || (i === bestIdx && i >= 0 && best && c.name.length > best.name.length)){
+      best = c; bestIdx = i;
+    }
+  }
+  if (best) return best;
+  for (const full in REGION_DATA){
+    if (addr.includes(shortName(full))){
+      const fc = Object.keys(REGION_DATA[full])[0];
+      const c = REGION_DATA[full][fc];
+      return { name: fc, lng: c[0], lat: c[1], province: full };
+    }
+  }
+  return null;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* =========================================================
+   ④  数据解析
+   ========================================================= */
+const points = [];
+const overseasPoints = [];
+const provinceStats = {};
+let activeProvince = null;
+const OVERSEAS_KEY = "__overseas__";
+
+function buildPoints(){
+  MALLS.forEach((raw, idx) => {
+    let name = raw, addr = raw, time = '待定';
+    const at = raw.indexOf('@');
+    if (at > -1){
+      name = raw.slice(0, at).trim();
+      const rest = raw.slice(at + 1).trim();
+      const at2 = rest.lastIndexOf('@');
+      if (at2 > -1){
+        addr = rest.slice(0, at2).trim();
+        time = rest.slice(at2 + 1).trim();
+      } else { addr = rest; }
+    }
+    const loc = geocode(addr);
+    if (!loc){
+      console.warn('[无法定位] ', raw);
+      return;
+    }
+    points.push({
+      id: idx, name: name || addr, address: addr, time: time,
+      lng: loc.lng, lat: loc.lat, city: loc.name, province: loc.province,
+      overseas: false
+    });
+    provinceStats[loc.province] = (provinceStats[loc.province] || 0) + 1;
+  });
+
+  OVERSEAS_MALLS.forEach((raw, idx) => {
+    let name = raw, addr = raw, time = '待定';
+    const at = raw.indexOf('@');
+    if (at > -1){
+      name = raw.slice(0, at).trim();
+      const rest = raw.slice(at + 1).trim();
+      const at2 = rest.lastIndexOf('@');
+      if (at2 > -1){
+        addr = rest.slice(0, at2).trim();
+        time = rest.slice(at2 + 1).trim();
+      } else { addr = rest; }
+    }
+    overseasPoints.push({
+      id: 'ov_' + idx, name: name || addr, address: addr, time: time,
+      lng: null, lat: null, city: addr, province: OVERSEAS_KEY,
+      overseas: true
+    });
+  });
+}
+
+/* =========================================================
+   ⑤  地图
+   ========================================================= */
+const MAP_URLS = [
+  'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json',
+  'https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json',
+  'https://unpkg.com/echarts@4.9.0/map/json/china.json'
+];
+let chart = null;
+let GEO = null;
+const IS_MOBILE = () => window.innerWidth <= 768;
+const INIT_ZOOM = () => IS_MOBILE() ? 0.95 : 1.15;
+const LABEL_THRESHOLD = () => IS_MOBILE() ? 2.0 : 1.1;
+
+let currentZoom = INIT_ZOOM();
+let lastLabelState = null;
+let zoomDebounce;
+
+async function loadMapData(){
+  for (const url of MAP_URLS){
+    try{
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const json = await res.json();
+      if (json && json.features && json.features.length) return json;
+    }catch(e){}
+  }
+  throw new Error('地图数据加载失败');
+}
+
+function colorFor(n){
+  if (!n) return '#0E2A3A';
+  if (n <= 2) return '#1B5566';
+  if (n <= 7) return '#2E8496';
+  if (n <= 14) return '#7FD4E0';
+  if (n <= 25) return '#FFC42E';
+  return '#FF9E2C';
+}
+
+function buildRegions(){
+  if (!GEO) return [];
+  const showAllLabels = currentZoom >= LABEL_THRESHOLD();
+
+  return GEO.features.map(f => {
+    const gn = f.properties.name;
+    const full = matchProvince(gn);
+    const n = full ? (provinceStats[full] || 0) : 0;
+    const selected = full && full === activeProvince;
+    const isBright = n >= 15;
+
+    const labelConfig = {
+      show: showAllLabels,
+      color: isBright ? '#0A1F2A' : '#C8E4EC',
+      fontSize: IS_MOBILE() ? 10 : 11,
+      fontWeight: 700,
+      textShadowColor: isBright ? 'rgba(255,255,255,.7)' : 'rgba(0,0,0,.65)',
+      textShadowBlur: 3
+    };
+    if (LABEL_OFFSET[gn]) labelConfig.offset = LABEL_OFFSET[gn];
+    if (LABEL_TEXT[gn])   labelConfig.formatter = LABEL_TEXT[gn];
+
+    return {
+      name: gn,
+      itemStyle: {
+        areaColor: colorFor(n),
+        borderColor: selected ? '#FFC42E' : 'rgba(127,212,224,.45)',
+        borderWidth: selected ? 2.2 : 0.7,
+        shadowColor: isBright ? 'rgba(255,196,46,.35)' : 'rgba(127,212,224,.15)',
+        shadowBlur: 12
+      },
+      label: labelConfig,
+      emphasis: {
+        itemStyle: { areaColor: '#FFD966', borderColor:'#FFE9A8' },
+        label: { show: true, color: '#0A1F2A', fontSize: 12, fontWeight: 800 }
+      }
+    };
+  });
+}
+
+function updateZoomState(){
+  try {
+    const coordSys = chart.getModel().getComponent('geo', 0).coordinateSystem;
+    if (coordSys && typeof coordSys.getZoom === 'function'){
+      currentZoom = coordSys.getZoom();
+    }
+  } catch(e){}
+
+  const show = currentZoom >= LABEL_THRESHOLD();
+  if (lastLabelState !== show){
+    lastLabelState = show;
+    chart.setOption({ geo: { regions: buildRegions() } });
+  }
+}
+
+function initChart(){
+  lastLabelState = currentZoom >= LABEL_THRESHOLD();
+
+  chart = echarts.init(document.getElementById('map'), null, { renderer: 'canvas' });
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(8,24,36,.96)',
+      borderColor: 'rgba(127,212,224,.5)', borderWidth: 1, padding: [10, 14],
+      extraCssText: 'box-shadow:0 8px 28px rgba(0,0,0,.6),0 0 20px rgba(127,212,224,.2);border-radius:10px;',
+      textStyle: { color: '#E5F4F7', fontSize: 12 },
+      formatter: function(params){
+        if (params.componentType === 'geo'){
+          const full = matchProvince(params.name);
+          const n = full ? (provinceStats[full] || 0) : 0;
+          return '<div style="font-weight:800;font-size:13px;color:#7FD4E0">' + escapeHtml(full || params.name) + '</div>' +
+                 '<div style="color:#FFC42E;margin-top:5px;font-weight:700">大屏数量：' + n + ' 个</div>' +
+                 (n ? '<div style="color:#7FA8BC;margin-top:3px;font-size:11px">点击查看该省点位</div>' : '');
+        }
+        if (params.componentType === 'series' && params.data && params.data.raw){
+          const p = params.data.raw;
+          return '<div style="font-weight:800;font-size:13px;color:#FFE9A8">' + escapeHtml(p.name) + '</div>' +
+                 '<div style="color:#7FD4E0;margin-top:5px;font-size:11px;font-weight:700">◷ 投放时间：' + escapeHtml(p.time) + '</div>' +
+                 '<div style="color:#8FB5C4;margin-top:5px;max-width:250px;white-space:normal;line-height:1.5;font-size:11px">' +
+                 escapeHtml(p.address) + '</div>';
+        }
+        return '';
+      }
+    },
+    geo: {
+      map: 'china', roam: true, zoom: INIT_ZOOM(), center: [104.5, 35.5],
+      scaleLimit: { min: 0.7, max: 40 },
+      itemStyle: {
+        areaColor: '#0E2A3A',
+        borderColor: 'rgba(127,212,224,.45)',
+        borderWidth: 0.7,
+        shadowColor: 'rgba(127,212,224,.2)',
+        shadowBlur: 18
+      },
+      label: { show: false },
+      emphasis: {
+        itemStyle: { areaColor: '#FFD966' },
+        label: { show: true, color: '#0A1F2A', fontSize: 12 }
+      },
+      select: { disabled: true },
+      regions: buildRegions()
+    },
+    series: [
+      {
+        id: 'points', type: 'scatter', coordinateSystem: 'geo', geoIndex: 0, zlevel: 2,
+        symbol: 'circle',
+        symbolSize: IS_MOBILE() ? 6 : 8,
+        itemStyle: {
+          color: '#7FD4E0',
+          borderColor: '#E5F4F7',
+          borderWidth: 1,
+          shadowBlur: 12,
+          shadowColor: 'rgba(127,212,224,.95)'
+        },
+        emphasis: {
+          scale: 2,
+          itemStyle: {
+            color: '#FFC42E',
+            borderColor: '#FFE9A8',
+            shadowBlur: 22,
+            shadowColor: 'rgba(255,196,46,1)'
+          }
+        },
+        data: points.map(p => ({ name: p.name, value: [p.lng, p.lat], raw: p }))
+      },
+      {
+        id: 'focus', type: 'effectScatter', coordinateSystem: 'geo', geoIndex: 0, zlevel: 3,
+        rippleEffect: { brushType: 'stroke', scale: 6, period: 2 },
+        symbolSize: IS_MOBILE() ? 14 : 16,
+        itemStyle: {
+          color: '#FFC42E',
+          borderColor: '#FFE9A8',
+          borderWidth: 2,
+          shadowBlur: 26,
+          shadowColor: 'rgba(255,196,46,.95)'
+        },
+        data: []
+      }
+    ]
+  });
+
+  chart.on('georoam', function(){
+    clearTimeout(zoomDebounce);
+    zoomDebounce = setTimeout(updateZoomState, 80);
+  });
+
+  chart.on('click', function(params){
+    if (params.componentType === 'geo'){
+      const full = matchProvince(params.name);
+      if (full && provinceStats[full]){
+        if (activeProvince === full) resetView(); else focusProvince(full);
+      } else { resetView(); }
+    } else if (params.componentType === 'series' && params.data && params.data.raw){
+      const p = params.data.raw;
+      focusPoint(p);
+      const el = document.querySelector('.item[data-id="' + p.id + '"]');
+      if (el){ setActiveItem(el); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+      closeMobileMenu();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    chart.resize();
+    clearTimeout(zoomDebounce);
+    zoomDebounce = setTimeout(updateZoomState, 120);
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => { chart.resize(); updateZoomState(); }, 260);
+  });
+}
+
+function focusProvince(full){
+  activeProvince = full;
+  currentZoom = IS_MOBILE() ? 3.6 : 4.5;
+  lastLabelState = currentZoom >= LABEL_THRESHOLD();
+  const c = PROVINCE_CENTER[full] || [104.5, 35.5];
+  chart.setOption({ geo: { center: c, zoom: currentZoom, regions: buildRegions() } });
+  chart.setOption({ series: [{ id: 'focus', data: [] }] });
+  renderList(full);
+}
+function focusPoint(p){
+  currentZoom = IS_MOBILE() ? 6 : 8;
+  lastLabelState = currentZoom >= LABEL_THRESHOLD();
+  chart.setOption({
+    geo: { center: [p.lng, p.lat], zoom: currentZoom, regions: buildRegions() },
+    series: [{ id: 'focus', data: [{ name: p.name, value: [p.lng, p.lat] }] }]
+  });
+}
+function resetView(){
+  activeProvince = null;
+  currentZoom = INIT_ZOOM();
+  lastLabelState = currentZoom >= LABEL_THRESHOLD();
+  chart.setOption({
+    geo: { center: [104.5, 35.5], zoom: currentZoom, regions: buildRegions() },
+    series: [{ id: 'focus', data: [] }]
+  });
+  renderList();
+  const cur = document.querySelector('.item.active'); if (cur) cur.classList.remove('active');
+}
+
+/* =========================================================
+   ⑥  侧边列表
+   ========================================================= */
+const listEl = document.getElementById('list');
+const searchInput = document.getElementById('search');
+
+function setActiveItem(el){
+  const cur = listEl.querySelector('.item.active');
+  if (cur) cur.classList.remove('active');
+  if (el) el.classList.add('active');
+}
+
+const toastEl = document.getElementById('overseasToast');
+let toastTimer = null;
+function showOverseasToast(p){
+  const flag = FLAG_MAP[p.address] || '🌍';
+  document.getElementById('toastFlag').textContent = flag;
+  document.getElementById('toastName').textContent = p.name;
+  document.getElementById('toastCountry').textContent = p.address;
+  document.getElementById('toastTime').textContent = p.time;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+}
+
+function renderList(provinceFilter){
+  const kw = (searchInput.value || '').trim().toLowerCase();
+  const groups = new Map();
+
+  points.forEach(p => {
+    if (provinceFilter && p.province !== provinceFilter) return;
+    const text = (p.name + p.address + p.city + p.province + p.time).toLowerCase();
+    if (kw && text.indexOf(kw) === -1) return;
+    if (!groups.has(p.province)) groups.set(p.province, []);
+    groups.get(p.province).push(p);
+  });
+
+  const overseasMatched = overseasPoints.filter(p => {
+    if (kw){
+      const text = (p.name + p.address + p.time).toLowerCase();
+      if (text.indexOf(kw) === -1) return false;
+    }
+    return true;
+  });
+
+  const provs = Array.from(groups.keys()).sort((a, b) => groups.get(b).length - groups.get(a).length);
+
+  let html = '';
+
+  if (overseasMatched.length && (!provinceFilter || provinceFilter === OVERSEAS_KEY)){
+    const isActive = activeProvince === OVERSEAS_KEY;
+    html += '<div class="pgroup overseas' + (isActive ? ' active' : '') + '">' +
+              '<div class="phead" data-prov="' + OVERSEAS_KEY + '">' +
+                '<span class="pname"><span class="globe">🌍</span>海外应援</span>' +
+                '<span class="pcount">' + overseasMatched.length + '</span>' +
+              '</div><div class="plist">';
+    overseasMatched.forEach(p => {
+      const flag = FLAG_MAP[p.address] || '🌍';
+      html += '<div class="item" data-id="' + p.id + '">' +
+                '<span class="dot"></span>' +
+                '<span class="info">' +
+                  '<span class="iname">' + flag + ' ' + escapeHtml(p.name) + '</span>' +
+                  '<span class="iaddr">' + escapeHtml(p.address) + '</span>' +
+                  '<span class="itime">' + escapeHtml(p.time) + '</span>' +
+                '</span>' +
+              '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  provs.forEach(prov => {
+    const arr = groups.get(prov);
+    html += '<div class="pgroup' + (prov === activeProvince ? ' active' : '') + '">' +
+              '<div class="phead" data-prov="' + escapeHtml(prov) + '">' +
+                '<span class="pname">' + escapeHtml(prov) + '</span>' +
+                '<span class="pcount">' + arr.length + '</span>' +
+              '</div><div class="plist">';
+    arr.forEach(p => {
+      html += '<div class="item" data-id="' + p.id + '" title="' + escapeHtml(p.address) + '">' +
+                '<span class="dot"></span>' +
+                '<span class="info">' +
+                  '<span class="iname">' + escapeHtml(p.name) + '</span>' +
+                  '<span class="itime">' + escapeHtml(p.time) + '</span>' +
+                '</span>' +
+              '</div>';
+    });
+    html += '</div></div>';
+  });
+
+  if (!html){
+    listEl.innerHTML = '<div class="empty">没有匹配的点位</div>';
+    return;
+  }
+  listEl.innerHTML = html;
+}
+
+listEl.addEventListener('click', function(e){
+  const item = e.target.closest('.item');
+  if (item){
+    const id = item.dataset.id;
+    if (String(id).startsWith('ov_')){
+      const p = overseasPoints.find(x => String(x.id) === id);
+      if (p){
+        setActiveItem(item);
+        showOverseasToast(p);
+        closeMobileMenu();
+      }
+      return;
+    }
+    const p = points.find(x => String(x.id) === id);
+    if (p){ focusPoint(p); setActiveItem(item); closeMobileMenu(); }
+    return;
+  }
+  const head = e.target.closest('.phead');
+  if (head){
+    const prov = head.dataset.prov;
+    if (prov === OVERSEAS_KEY){
+      activeProvince = activeProvince === OVERSEAS_KEY ? null : OVERSEAS_KEY;
+      renderList();
+      return;
+    }
+    if (activeProvince === prov) resetView(); else focusProvince(prov);
+    closeMobileMenu();
+  }
+});
+searchInput.addEventListener('input', () => renderList(activeProvince));
+document.getElementById('btnReset').addEventListener('click', () => { resetView(); closeMobileMenu(); });
+
+/* =========================================================
+   ⑦  移动端抽屉
+   ========================================================= */
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('mobileOverlay');
+const toggleBtn = document.getElementById('mobileToggle');
+
+function openMobileMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+function closeMobileMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.contains('open') ? closeMobileMenu() : openMobileMenu();
+});
+overlay.addEventListener('click', closeMobileMenu);
+
+/* =========================================================
+   ⑧  统计
+   ========================================================= */
+function updateStat(){
+  const total = points.length + overseasPoints.length;
+  const provCount = Object.keys(provinceStats).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statProv').textContent = provCount;
+  document.querySelector('.side-head .sub').textContent =
+    '全国 ' + points.length + ' 屏 + 海外 ' + overseasPoints.length + ' 屏 · 点击省份/点位，快速定位';
+}
+
+/* =========================================================
+   ⑨  启动
+   ========================================================= */
+(async function(){
+  const loadingEl = document.getElementById('loading');
+  try{
+    buildPoints();
+    GEO = await loadMapData();
+    echarts.registerMap('china', GEO);
+    if (loadingEl) loadingEl.remove();
+    initChart();
+    renderList();
+    updateStat();
+    const missing = MALLS.length - points.length;
+    if (missing > 0) console.warn('有 ' + missing + ' 条地址未能定位');
+  }catch(err){
+    console.error(err);
+    if (loadingEl){
+      loadingEl.innerHTML = '<div style="text-align:center;line-height:2;color:#FF8A8A">' +
+        '地图数据加载失败：' + escapeHtml(err.message) + '<br/>' +
+        '<span style="color:#7FA8BC;font-size:12px">请检查网络后刷新</span></div>';
+    }
+  }
+})();
+</script>
+</body>
+</html>
